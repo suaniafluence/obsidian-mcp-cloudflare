@@ -1,0 +1,8 @@
+name = "obsidian-mcp"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Ces variables peuvent être définies dans Cloudflare ou GitHub Actions
+STORJ_S3_ENDPOINT = "https://gateway.storjshare.io"
+
