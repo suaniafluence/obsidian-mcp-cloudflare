@@ -119,7 +119,7 @@ Si tu veux déployer manuellement depuis ton terminal :
 
 bash
 Copier le code
-npx wrangler publish --account-id <CLOUDFLARE_ACCOUNT_ID>
+npx wrangler deploy
 Wrangler publiera automatiquement ton Worker sur :
 
 arduino
