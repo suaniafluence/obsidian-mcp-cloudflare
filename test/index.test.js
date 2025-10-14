@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { test } from "node:test";
+import assert from "node:assert/strict";
 import worker from "../src/index.js";
 
 const baseEnv = {
@@ -15,38 +16,54 @@ const buildRequest = (path, init) =>
     headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
   });
 
-beforeEach(() => {
-  globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
-});
+const createFetchMock = (...responses) => {
+  const originalFetch = globalThis.fetch;
+  const queue = [...responses];
+  const calls = [];
 
-afterEach(() => {
-  vi.restoreAllMocks();
-});
+  globalThis.fetch = async (...args) => {
+    calls.push(args);
+    if (queue.length === 0) {
+      throw new Error("No mocked response provided for fetch call");
+    }
+    return queue.shift();
+  };
 
-describe("Cloudflare Worker routes", () => {
-  it("lists markdown notes from the Storj bucket", async () => {
-    const xmlListing = `<?xml version="1.0"?>\n<ListBucketResult>\n  <Contents><Key>notes/foo.md</Key></Contents>\n  <Contents><Key>notes/bar.txt</Key></Contents>\n  <Contents><Key>notes/baz.md</Key></Contents>\n</ListBucketResult>`;
+  return {
+    calls,
+    restore() {
+      globalThis.fetch = originalFetch;
+    },
+  };
+};
 
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(xmlListing));
+globalThis.btoa = (value) => Buffer.from(value, "binary").toString("base64");
 
+test("lists markdown notes from the Storj bucket", async () => {
+  const xmlListing = `<?xml version="1.0"?>\n<ListBucketResult>\n  <Contents><Key>notes/foo.md</Key></Contents>\n  <Contents><Key>notes/bar.txt</Key></Contents>\n  <Contents><Key>notes/baz.md</Key></Contents>\n</ListBucketResult>`;
+
+  const fetchMock = createFetchMock(new Response(xmlListing));
+
+  try {
     const response = await worker.fetch(buildRequest("/listNotes"), baseEnv);
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://example.com/bucket?list-type=2&prefix=notes",
-      expect.objectContaining({ headers: expect.any(Object) })
-    );
+    assert.equal(fetchMock.calls.length, 1);
+    const [url, init] = fetchMock.calls[0];
+    assert.equal(url, "https://example.com/bucket?list-type=2&prefix=notes");
+    assert.ok(init.headers, "Expected headers to be passed to fetch");
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ files: ["notes/foo.md", "notes/baz.md"] });
-  });
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.deepEqual(payload, { files: ["notes/foo.md", "notes/baz.md"] });
+  } finally {
+    fetchMock.restore();
+  }
+});
 
-  it("reads an individual note from Storj", async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response("## Note content"));
+test("reads an individual note from Storj", async () => {
+  const fetchMock = createFetchMock(new Response("## Note content"));
 
+  try {
     const response = await worker.fetch(
       buildRequest("/readNote", {
         method: "POST",
@@ -55,17 +72,23 @@ describe("Cloudflare Worker routes", () => {
       baseEnv
     );
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://example.com/bucket/notes/foo.md",
-      expect.objectContaining({ headers: expect.any(Object) })
-    );
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ content: "## Note content" });
-  });
+    assert.equal(fetchMock.calls.length, 1);
+    const [url, init] = fetchMock.calls[0];
+    assert.equal(url, "https://example.com/bucket/notes/foo.md");
+    assert.ok(init.headers, "Expected headers to be passed to fetch");
 
-  it("writes a note back to Storj", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(null, { status: 200 }));
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.deepEqual(payload, { content: "## Note content" });
+  } finally {
+    fetchMock.restore();
+  }
+});
 
+test("writes a note back to Storj", async () => {
+  const fetchMock = createFetchMock(new Response(null, { status: 200 }));
+
+  try {
     const response = await worker.fetch(
       buildRequest("/writeNote", {
         method: "POST",
@@ -74,25 +97,26 @@ describe("Cloudflare Worker routes", () => {
       baseEnv
     );
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://example.com/bucket/notes/foo.md",
-      expect.objectContaining({
-        method: "PUT",
-        headers: expect.objectContaining({
-          Authorization: expect.stringMatching(/^Basic /),
-          "Content-Type": "text/markdown",
-        }),
-        body: "Hello",
-      })
-    );
+    assert.equal(fetchMock.calls.length, 1);
+    const [url, init] = fetchMock.calls[0];
+    assert.equal(url, "https://example.com/bucket/notes/foo.md");
+    assert.equal(init.method, "PUT");
+    assert.ok(init.headers, "Expected headers to be passed to fetch");
+    assert.match(init.headers.Authorization, /^Basic /);
+    assert.equal(init.headers["Content-Type"], "text/markdown");
+    assert.equal(init.body, "Hello");
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ success: true, message: "foo.md sauvegardée." });
-  });
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.deepEqual(payload, { success: true, message: "foo.md sauvegardée." });
+  } finally {
+    fetchMock.restore();
+  }
+});
 
-  it("returns 404 for unknown routes", async () => {
-    const response = await worker.fetch(buildRequest("/unknown"), baseEnv);
-    expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: "Route inconnue" });
-  });
+test("returns 404 for unknown routes", async () => {
+  const response = await worker.fetch(buildRequest("/unknown"), baseEnv);
+  assert.equal(response.status, 404);
+  const payload = await response.json();
+  assert.deepEqual(payload, { error: "Route inconnue" });
 });
