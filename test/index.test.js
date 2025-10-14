@@ -114,6 +114,16 @@ test("writes a note back to Storj", async () => {
   }
 });
 
+test("returns a helpful message on the root route", async () => {
+  const response = await worker.fetch(buildRequest("/"), baseEnv);
+  assert.equal(response.status, 200);
+  const payload = await response.json();
+  assert.deepEqual(payload, {
+    message:
+      "Obsidian MCP Worker opérationnel. Utilisez /listNotes, /readNote (POST) ou /writeNote (POST).",
+  });
+});
+
 test("returns 404 for unknown routes", async () => {
   const response = await worker.fetch(buildRequest("/unknown"), baseEnv);
   assert.equal(response.status, 404);
