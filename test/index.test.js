@@ -8,6 +8,7 @@ const baseEnv = {
   STORJ_PREFIX: "notes",
   STORJ_ACCESS_KEY: "access",
   STORJ_SECRET_KEY: "secret",
+  STORJ_REGION: "eu1",
 };
 
 const buildRequest = (path, init) =>
@@ -51,6 +52,7 @@ test("lists markdown notes from the Storj bucket", async () => {
     const [url, init] = fetchMock.calls[0];
     assert.equal(url, "https://example.com/bucket?list-type=2&prefix=notes");
     assert.ok(init.headers, "Expected headers to be passed to fetch");
+    assert.equal(init.headers["x-amz-bucket-region"], "eu1");
 
     assert.equal(response.status, 200);
     const payload = await response.json();

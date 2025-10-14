@@ -61,6 +61,7 @@ Les variables sensibles sont injectées via **GitHub Secrets** ou via le tableau
 | Nom | Exemple | Description |
 |------|----------|-------------|
 | `STORJ_ENDPOINT` | `https://gateway.eu1.storjshare.io` | Endpoint S3 régional Storj |
+| `STORJ_REGION` | `eu1` | Région du gateway Storj |
 | `STORJ_BUCKET` | `obsidian-vault` | Nom du bucket |
 | `STORJ_PREFIX` | `notes` | Sous-dossier contenant les notes |
 | `STORJ_ACCESS_KEY` | `1YXXJ2ZKXXXX` | Access Key Storj |
@@ -109,6 +110,7 @@ Nom	Exemple
 CLOUDFLARE_API_TOKEN	eyJh...
 CLOUDFLARE_ACCOUNT_ID	1234567890abcdef...
 STORJ_ENDPOINT	https://gateway.eu1.storjshare.io
+STORJ_REGION	eu1
 STORJ_BUCKET	obsidian-vault
 STORJ_PREFIX	notes
 STORJ_ACCESS_KEY	1YXXJ2ZKXXXX
