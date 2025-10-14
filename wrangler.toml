@@ -1,4 +1,4 @@
-name = "obsidian-mcp"
+name = "obsidian-mcp-cloudflare"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
 
