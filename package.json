@@ -2,9 +2,11 @@
   "name": "obsidian-mcp-cloudflare",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler publish"
+    "deploy": "wrangler publish",
+    "test": "vitest run"
   },
   "devDependencies": {
     "wrangler": "4.42.2"
