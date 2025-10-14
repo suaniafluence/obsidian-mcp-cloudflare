@@ -5,6 +5,7 @@ export default {
     const headers = {
       Authorization:
         "Basic " + btoa(`${env.STORJ_ACCESS_KEY}:${env.STORJ_SECRET_KEY}`),
+      "x-amz-bucket-region": env.STORJ_REGION ?? "eu1",
     };
 
     if (pathname === "/") {
