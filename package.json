@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler publish",
-    "test": "vitest run"
+    "test": "node --test"
   },
   "devDependencies": {
     "wrangler": "4.42.2"
