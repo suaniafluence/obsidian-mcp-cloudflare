@@ -7,6 +7,13 @@ export default {
         "Basic " + btoa(`${env.STORJ_ACCESS_KEY}:${env.STORJ_SECRET_KEY}`),
     };
 
+    if (pathname === "/") {
+      return Response.json({
+        message:
+          "Obsidian MCP Worker opérationnel. Utilisez /listNotes, /readNote (POST) ou /writeNote (POST).",
+      });
+    }
+
     if (pathname === "/listNotes") {
       const resp = await fetch(
         `${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}?list-type=2&prefix=${env.STORJ_PREFIX}`,
