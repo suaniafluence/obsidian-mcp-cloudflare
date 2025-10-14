@@ -76,6 +76,7 @@ Les variables sensibles sont injectées via **GitHub Secrets** ou via le tableau
 git clone https://github.com/<ton_user>/obsidian-mcp-cloudflare.git
 cd obsidian-mcp-cloudflare
 npm install
+npm test
 cp .env.example .env
 # renseigne tes clés Storj dans .env
 npx wrangler dev
@@ -87,7 +88,7 @@ bash
 Copier le code
 curl http://localhost:8787/listNotes
 ☁️ Déploiement automatique (CI/CD)
-Le déploiement s’effectue via GitHub Actions dès qu’un commit est poussé sur main.
+Le déploiement s’effectue via GitHub Actions dès qu’un commit est poussé sur main. Un workflow dédié exécute d’abord la suite de tests unitaires (`npm test`), puis déclenche la publication si tout est vert.
 
 Fichier .github/workflows/deploy.yml
 Le workflow :

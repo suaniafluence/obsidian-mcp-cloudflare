@@ -14,11 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- Étape 2 : Installation de Wrangler (CLI Cloudflare) ---
+      # --- Étape 2 : Préparation de Node.js ---
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # --- Étape 3 : Installation des dépendances et exécution des tests ---
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
+      # --- Étape 4 : Installation de Wrangler (CLI Cloudflare) ---
       - name: Install Wrangler
         run: npm install -g wrangler
 
-      # --- Étape 3 : Exportation des variables d'environnement ---
+      # --- Étape 5 : Exportation des variables d'environnement ---
       - name: Export secrets
         run: |
           echo "STORJ_ENDPOINT=${{ secrets.STORJ_ENDPOINT }}" >> $GITHUB_ENV
@@ -28,7 +42,7 @@ jobs:
           echo "STORJ_SECRET_KEY=${{ secrets.STORJ_SECRET_KEY }}" >> $GITHUB_ENV
           echo "CLOUDFLARE_ACCOUNT_ID=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" >> $GITHUB_ENV
 
-      # --- Étape 4 : Déploiement du Worker sur Cloudflare ---
+      # --- Étape 6 : Déploiement du Worker sur Cloudflare ---
       - name: Deploy Worker to Cloudflare
         run: |
           wrangler publish --account-id $CLOUDFLARE_ACCOUNT_ID
