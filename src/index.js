@@ -2,6 +2,24 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const pathname = url.pathname;
+    const requiredEnv = [
+      "STORJ_ACCESS_KEY",
+      "STORJ_SECRET_KEY",
+      "STORJ_ENDPOINT",
+      "STORJ_BUCKET",
+    ];
+
+    const missing = requiredEnv.filter((key) => !env?.[key]);
+    if (missing.length > 0) {
+      return Response.json(
+        {
+          error: "Configuration invalide",
+          message: `Variables d'environnement manquantes: ${missing.join(", ")}`,
+        },
+        { status: 500 }
+      );
+    }
+
     const headers = {
       Authorization:
         "Basic " + btoa(`${env.STORJ_ACCESS_KEY}:${env.STORJ_SECRET_KEY}`),
@@ -16,15 +34,36 @@ export default {
     }
 
     if (pathname === "/listNotes") {
-      const resp = await fetch(
-        `${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}?list-type=2&prefix=${env.STORJ_PREFIX}`,
-        { headers }
-      );
-      const xml = await resp.text();
-      const files = Array.from(xml.matchAll(/<Key>([^<]+\.md)<\/Key>/g)).map(
-        (m) => m[1]
-      );
-      return Response.json({ files });
+      try {
+        const resp = await fetch(
+          `${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}?list-type=2&prefix=${env.STORJ_PREFIX ?? ""}`,
+          { headers }
+        );
+        if (!resp.ok) {
+          const body = await resp.text();
+          return Response.json(
+            {
+              error: "Echec de la récupération des notes",
+              status: resp.status,
+              details: body,
+            },
+            { status: 502 }
+          );
+        }
+        const xml = await resp.text();
+        const files = Array.from(xml.matchAll(/<Key>([^<]+\.md)<\/Key>/g)).map(
+          (m) => m[1]
+        );
+        return Response.json({ files });
+      } catch (error) {
+        return Response.json(
+          {
+            error: "Exception lors du listage des notes",
+            message: error instanceof Error ? error.message : String(error),
+          },
+          { status: 500 }
+        );
+      }
     }
 
     if (pathname === "/readNote" && request.method === "POST") {
