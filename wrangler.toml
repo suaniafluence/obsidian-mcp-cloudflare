@@ -7,7 +7,7 @@ compatibility_date = "2025-01-01"
 # Ces variables peuvent être définies dans Cloudflare ou GitHub Actions
 # Clés d'accès pour authentifier le worker auprès de Storj
 STORJ_ACCESS_KEY = "jvmssvrsbmgpnhhvm6scbfsd64zq"
-STORJ_SECRET_KEY = "jzvpuwnxoqcsgmanwnk7ykj6oyy676h6vzdsceqq5jiql4rcwpuzc"
+STORJ_SECRET_KEY = "12TgG3LTsNpVbvZaJNKYMBihZ2QmQeKq2F7XZUf5WCvYib3epS3CkCN9oYsTUa7Cn5rp5z7uHPb81Sf1fhV8Kh4jRvjw9DQWHzCirvdVgztYrMPHwCELeNEopwbjDxjXvCV8KLC2FrAXgHWAx741RWDDjmuoMimnuUBnyQgS6saSxebcmpDCrw3BxFGabyANhS7TvVb8EnJEvLczZT3WxCBbftNFBpQTGaDobvsn5rsAiCn8117cAY8Jmd6VnU1HJuSpJqPKqdAdSbNwnJiek6MrkkiPriCPzTVE"
 
 # Point d'accès S3 compatible pour la passerelle Storj
 STORJ_ENDPOINT = "https://gateway.storjshare.io"
