@@ -2,6 +2,16 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const pathname = url.pathname;
+    const sanitizePrefix = (value) =>
+      (value ?? "")
+        .replace(/^\/+/, "")
+        .replace(/\/+$/, "");
+
+    const buildKey = (filename) => {
+      const prefix = sanitizePrefix(env?.STORJ_PREFIX);
+      const cleanFilename = filename.replace(/^\/+/, "");
+      return prefix ? `${prefix}/${cleanFilename}` : cleanFilename;
+    };
     const requiredEnv = [
       "STORJ_ACCESS_KEY",
       "STORJ_SECRET_KEY",
@@ -36,7 +46,7 @@ export default {
     if (pathname === "/listNotes") {
       try {
         const resp = await fetch(
-          `${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}?list-type=2&prefix=${env.STORJ_PREFIX ?? ""}`,
+          `${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}?list-type=2&prefix=${sanitizePrefix(env.STORJ_PREFIX)}`,
           { headers }
         );
         if (!resp.ok) {
@@ -68,7 +78,7 @@ export default {
 
     if (pathname === "/readNote" && request.method === "POST") {
       const { filename } = await request.json();
-      const key = `${filename}`;
+      const key = buildKey(filename);
       const resp = await fetch(`${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}/${key}`, { headers });
       const content = await resp.text();
       return Response.json({ content });
@@ -76,7 +86,7 @@ export default {
 
     if (pathname === "/writeNote" && request.method === "POST") {
       const { filename, content } = await request.json();
-      const key = `${filename}`;
+      const key = buildKey(filename);
       await fetch(`${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}/${key}`, {
         method: "PUT",
         headers: {
