@@ -1,5 +1,6 @@
 name = "obsidianmcp"
 main = "src/index.js"
+account_id = "bc912b2f78ee155bbdf8dd84426f24d5"
 compatibility_date = "2025-01-01"
 
 [vars]
