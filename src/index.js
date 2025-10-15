@@ -68,7 +68,7 @@ export default {
 
     if (pathname === "/readNote" && request.method === "POST") {
       const { filename } = await request.json();
-      const key = `${env.STORJ_PREFIX}/${filename}`;
+      const key = `${filename}`;
       const resp = await fetch(`${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}/${key}`, { headers });
       const content = await resp.text();
       return Response.json({ content });
@@ -76,7 +76,7 @@ export default {
 
     if (pathname === "/writeNote" && request.method === "POST") {
       const { filename, content } = await request.json();
-      const key = `${env.STORJ_PREFIX}/${filename}`;
+      const key = `${filename}`;
       await fetch(`${env.STORJ_ENDPOINT}/${env.STORJ_BUCKET}/${key}`, {
         method: "PUT",
         headers: {
