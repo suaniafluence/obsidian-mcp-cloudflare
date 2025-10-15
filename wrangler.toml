@@ -4,15 +4,9 @@ account_id = "bc912b2f78ee155bbdf8dd84426f24d5"
 compatibility_date = "2025-01-01"
 
 [vars]
-# Ces variables peuvent être définies dans Cloudflare ou GitHub Actions
-# Clés d'accès pour authentifier le worker auprès de Storj
 STORJ_ACCESS_KEY = "jukfq5ljc4zzzmhsf5qsvapxnl3a"
 STORJ_SECRET_KEY = "j34z3ewnjkn7itojzp7bybdghq5czdh4srxnomci6324scteerybo"
-
-# Point d'accès S3 compatible pour la passerelle Storj
 STORJ_ENDPOINT = "https://gateway.storjshare.io"
-
-# Nom du bucket utilisé pour stocker les données Obsidian
 STORJ_BUCKET = "obsidianeiafluence"
 STORJ_S3_REGION="eu1"
 [observability]
@@ -20,4 +14,4 @@ STORJ_S3_REGION="eu1"
   enabled = false
   head_sampling_rate = 1
   invocation_logs = true
-
+  persist = true
