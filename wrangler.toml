@@ -5,7 +5,15 @@ compatibility_date = "2025-01-01"
 
 [vars]
 # Ces variables peuvent être définies dans Cloudflare ou GitHub Actions
-STORJ_S3_ENDPOINT = "https://gateway.storjshare.io"
+# Clés d'accès pour authentifier le worker auprès de Storj
+STORJ_ACCESS_KEY = ""
+STORJ_SECRET_KEY = ""
+
+# Point d'accès S3 compatible pour la passerelle Storj
+STORJ_ENDPOINT = "https://gateway.storjshare.io"
+
+# Nom du bucket utilisé pour stocker les données Obsidian
+STORJ_BUCKET = ""
 
 [observability]
   [observability.logs]
